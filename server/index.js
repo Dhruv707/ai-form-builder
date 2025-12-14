@@ -12,7 +12,7 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-app.post("/generateSchema", async (req, res) => {
+app.post("/api/generateSchema", async (req, res) => {
   const { prompt } = req.body;
   try {
     const completion = await client.chat.completions.create({
@@ -220,4 +220,7 @@ app.post("/generateSchema", async (req, res) => {
   }
 });
 
-module.exports = app;
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
+});
