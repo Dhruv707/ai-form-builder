@@ -1,4 +1,3 @@
-// src/components/TemplatePanel.jsx
 import React, { useState } from "react";
 import TemplateList from "./TemplateList.jsx";
 import DynamicForm from "./DynamicForm.jsx";

@@ -1,4 +1,3 @@
-// src/components/DynamicForm.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { downloadJSON, downloadCSV } from "../utils/download";
 
@@ -61,12 +60,11 @@ export default function DynamicForm({ schema, onFormCreated, initialValues }) {
   };
 
   useEffect(() => {
-  if (initialValues) {
-    setFormState(initialValues);
-    setErrors({});
-  }
-}, [initialValues]);
-
+    if (initialValues) {
+      setFormState(initialValues);
+      setErrors({});
+    }
+  }, [initialValues]);
 
   // ---- VALIDATION ----
   const validateField = (field) => {
@@ -82,9 +80,9 @@ export default function DynamicForm({ schema, onFormCreated, initialValues }) {
   };
 
   const collectErrors = () => {
-  const newErrors = {};
+    const newErrors = {};
 
-  const visit = (fields) => {
+    const visit = (fields) => {
       (fields || []).forEach((field) => {
         const err = validateField(field);
         if (err) newErrors[field.name] = err;
@@ -98,24 +96,21 @@ export default function DynamicForm({ schema, onFormCreated, initialValues }) {
       });
     };
 
-  visit(schema.fields);
-  return newErrors;
-};
+    visit(schema.fields);
+    return newErrors;
+  };
 
+  const validateAll = () => {
+    const newErrors = collectErrors();
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-const validateAll = () => {
-  const newErrors = collectErrors();
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+  const isFormComplete = () => {
+    const newErrors = collectErrors();
+    return Object.keys(newErrors).length === 0;
+  };
 
-const isFormComplete = () => {
-  const newErrors = collectErrors();
-  return Object.keys(newErrors).length === 0;
-};
-
-
-  // ---- EXPORT RESPONSE ----
   const exportJSON = () => {
     if (!validateAll()) return;
     downloadJSON("form-response.json", formState);
@@ -126,30 +121,28 @@ const isFormComplete = () => {
     downloadCSV("form-response.csv", [formState]);
   };
 
-const handleSaveForm = () => {
-  if (!schema) return;
-  if (!validateAll()) return;
+  const handleSaveForm = () => {
+    if (!schema) return;
+    if (!validateAll()) return;
 
-  const formName = window.prompt("Enter form title:");
-  if (!formName) return;
+    const formName = window.prompt("Enter form title:");
+    if (!formName) return;
 
-  const userName = window.prompt("Enter user name:");
-  if (!userName) return;
-  onFormCreated?.({
-    id: "submission_" + Date.now(),
-    formName,
-    userName,
-    schema,
-    values: formState,
-  });
+    const userName = window.prompt("Enter user name:");
+    if (!userName) return;
+    onFormCreated?.({
+      id: "submission_" + Date.now(),
+      formName,
+      userName,
+      schema,
+      values: formState,
+    });
 
-  setFormState({});
-  setErrors({});
-  alert("Form saved!");
-};
+    setFormState({});
+    setErrors({});
+    alert("Form saved!");
+  };
 
-
-  // ---- RENDER ----
   const renderFields = (fields) =>
     (fields || []).map((field) => {
       const value = formState[field.name];

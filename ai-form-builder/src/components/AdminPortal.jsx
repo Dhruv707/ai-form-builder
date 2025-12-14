@@ -1,4 +1,3 @@
-// src/components/AdminPortal.jsx
 import { useState } from "react";
 import { useLLM } from "../hooks/useLLM";
 import LivePreview from "./LivePreview";
@@ -6,7 +5,12 @@ import SchemaEditor from "./SchemaEditor";
 import TemplatePanel from "./TemplatePanel";
 import FormPanel from "./FormPanel";
 
-const AdminPortal = ({ onTemplateCreated, onFormCreated, templates, forms }) => {
+const AdminPortal = ({
+  onTemplateCreated,
+  onFormCreated,
+  templates,
+  forms,
+}) => {
   const [prompt, setPrompt] = useState("");
   const [schema, setSchema] = useState(null);
   const [schemaErrors, setSchemaErrors] = useState([]);
@@ -28,7 +32,7 @@ const AdminPortal = ({ onTemplateCreated, onFormCreated, templates, forms }) => 
     setSchema(newSchema);
   };
 
-const handleSaveTemplate = () => {
+  const handleSaveTemplate = () => {
     if (!schema || schemaErrors.length > 0) return;
     const title = window.prompt("Enter a title for this template:");
     if (!title) return;
@@ -43,31 +47,29 @@ const handleSaveTemplate = () => {
     alert("Template saved!");
   };
 
-const canSaveTemplate =
-  schema &&
-  Object.keys(schema).length > 0 &&
-  schemaErrors.length === 0;
+  const canSaveTemplate =
+    schema && Object.keys(schema).length > 0 && schemaErrors.length === 0;
 
   return (
     <div className="admin-container">
       <div className="admin-heading">
-      <h2 className="admin-title">Admin Portal</h2>
-      <div>
-      <button
-          className="primary-btn small"
-          style={{ margin: "18px" }}
-          onClick={() => setShowTemplates(true)}
-        >
-          Templates
-      </button>
-      <button
-          className="primary-btn small"
-          style={{ margin: "18px" }}
-          onClick={() => setShowForms(true)}
-        >
-          Forms
-      </button>
-      </div>
+        <h2 className="admin-title">Admin Portal</h2>
+        <div>
+          <button
+            className="primary-btn small"
+            style={{ margin: "18px" }}
+            onClick={() => setShowTemplates(true)}
+          >
+            Templates
+          </button>
+          <button
+            className="primary-btn small"
+            style={{ margin: "18px" }}
+            onClick={() => setShowForms(true)}
+          >
+            Forms
+          </button>
+        </div>
       </div>
       <textarea
         rows={4}
@@ -98,22 +100,21 @@ const canSaveTemplate =
 
       {/* Live preview only when schema exists */}
       {/* Live preview only when schema exists */}
-{schema && (
-  <>
-    <LivePreview schema={schema} errorsByName={{}} />
+      {schema && (
+        <>
+          <LivePreview schema={schema} errorsByName={{}} />
 
-    <div style={{ marginTop: 16 }}>
-      <button
-        className="primary-btn"
-        disabled={!canSaveTemplate}
-        onClick={() => handleSaveTemplate()}
-      >
-        Add to Templates
-      </button>
-    </div>
-  </>
-)}
-
+          <div style={{ marginTop: 16 }}>
+            <button
+              className="primary-btn"
+              disabled={!canSaveTemplate}
+              onClick={() => handleSaveTemplate()}
+            >
+              Add to Templates
+            </button>
+          </div>
+        </>
+      )}
 
       {showTemplates && (
         <TemplatePanel

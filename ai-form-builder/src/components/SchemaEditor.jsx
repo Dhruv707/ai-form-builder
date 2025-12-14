@@ -3,7 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { validateSchema } from "../utils/jsonValidator";
 import { downloadJSON } from "../utils/download";
 
-const SchemaEditor = ({ schema, aiPrompt, onApplySchema, onValidationChange}) => {
+const SchemaEditor = ({
+  schema,
+  aiPrompt,
+  onApplySchema,
+  onValidationChange,
+}) => {
   const textareaRef = useRef(null);
   const initialSchemaRef = useRef(null);
   const fileInputRef = useRef(null); // ✅ added
@@ -13,87 +18,79 @@ const SchemaEditor = ({ schema, aiPrompt, onApplySchema, onValidationChange}) =>
   const [showAppliedMessage, setShowAppliedMessage] = useState(false);
 
   // keep initial AI schema only once
-useEffect(() => {
-  if (schema && Object.keys(schema).length > 0) {
-    if (!initialSchemaRef.current) {
-      initialSchemaRef.current = schema;
+  useEffect(() => {
+    if (schema && Object.keys(schema).length > 0) {
+      if (!initialSchemaRef.current) {
+        initialSchemaRef.current = schema;
+      }
+
+      setTextValue(JSON.stringify(schema, null, 2));
+
+      const res = validateSchema(schema);
+      const errs = res.errors || [];
+
+      setSchemaErrors(errs);
+      onValidationChange?.(errs);
+    } else {
+      setTextValue("");
+      setSchemaErrors([]);
+      onValidationChange?.([]);
     }
-
-    setTextValue(JSON.stringify(schema, null, 2));
-
-    const res = validateSchema(schema);
-    const errs = res.errors || [];
-
-    setSchemaErrors(errs);
-    onValidationChange?.(errs);
-  } else {
-    setTextValue("");
-    setSchemaErrors([]);
-    onValidationChange?.([]);
-  }
-}, [schema, onValidationChange]);
-
-
-
+  }, [schema, onValidationChange]);
 
   const handleChange = (e) => {
     setTextValue(e.target.value);
   };
 
-  // apply changes
   const handleSave = () => {
-  try {
-    const parsed = JSON.parse(textValue);
-    const res = validateSchema(parsed);
-    if (!res.valid) {
-      setSchemaErrors(res.errors || []);
+    try {
+      const parsed = JSON.parse(textValue);
+      const res = validateSchema(parsed);
+      if (!res.valid) {
+        setSchemaErrors(res.errors || []);
+        onValidationChange?.(errs);
+        return;
+      }
+
+      onApplySchema(parsed);
+      setSchemaErrors([]);
+      onValidationChange?.([]);
+
+      setShowAppliedMessage(true);
+      setTimeout(() => setShowAppliedMessage(false), 2000);
+    } catch {
+      const parseErr = [
+        {
+          path: "",
+          message: "JSON parse error — fix JSON syntax",
+          suggestion: "Check commas, brackets and object structure.",
+        },
+      ];
+      setSchemaErrors(parseErr);
+      onValidationChange?.(parseErr);
+    }
+  };
+
+  const handleReset = () => {
+    const base = initialSchemaRef.current;
+
+    if (!base || Object.keys(base).length === 0) {
+      setTextValue("");
+      setSchemaErrors([]);
+      onValidationChange?.([]);
+      onApplySchema(base);
+    } else {
+      setTextValue(JSON.stringify(base, null, 2));
+      const res = validateSchema(base);
+      const errs = res.errors || [];
+      setSchemaErrors(errs);
       onValidationChange?.(errs);
-      return;
+      onApplySchema(base);
     }
 
-    onApplySchema(parsed);
-    setSchemaErrors([]);
-    onValidationChange?.([]);
+    textareaRef.current?.focus();
+  };
 
-    setShowAppliedMessage(true);
-    setTimeout(() => setShowAppliedMessage(false), 2000);
-  } catch {
-    const parseErr = [
-      {
-        path: "",
-        message: "JSON parse error — fix JSON syntax",
-        suggestion: "Check commas, brackets and object structure.",
-      },
-    ]
-    setSchemaErrors(parseErr);
-    onValidationChange?.(parseErr);
-  }
-};
-
-
-  // reset to original AI schema
-const handleReset = () => {
-  const base = initialSchemaRef.current;
-
-  if (!base || Object.keys(base).length === 0) {
-    setTextValue("");
-    setSchemaErrors([]);
-    onValidationChange?.([]);
-    onApplySchema(base);
-  } else {
-    setTextValue(JSON.stringify(base, null, 2));
-    const res = validateSchema(base);
-    const errs = res.errors || [];
-    setSchemaErrors(errs);
-    onValidationChange?.(errs);
-    onApplySchema(base);
-  }
-
-  textareaRef.current?.focus();
-};
-
-
-  // ✅ import JSON from file
   const handleImport = () => {
     fileInputRef.current?.click();
   };
@@ -111,12 +108,9 @@ const handleReset = () => {
       }
     };
     reader.readAsText(file);
-
-    // allow re-selecting the same file
     e.target.value = "";
   };
 
-  // jump to path (simple + safe)
   const jumpToPath = (path) => {
     if (!textareaRef.current || !path) return;
     const idx = textareaRef.current.value.indexOf(path.split(".").pop());
@@ -138,7 +132,6 @@ const handleReset = () => {
         onChange={handleChange}
       />
 
-      {/* hidden file input for import */}
       <input
         type="file"
         accept=".json,application/json"
@@ -147,7 +140,6 @@ const handleReset = () => {
         onChange={handleFileChange}
       />
 
-      {/* Errors */}
       {schemaErrors.length > 0 && (
         <div className="schema-errors-panel" style={{ marginTop: 12 }}>
           <h4>Schema issues detected</h4>
@@ -163,7 +155,7 @@ const handleReset = () => {
                 <button
                   className="secondary-btn small"
                   onClick={() => jumpToPath(err.path)}
-                  style={{margin: "10px 0"}}
+                  style={{ margin: "10px 0" }}
                 >
                   Jump to JSON
                 </button>

@@ -1,17 +1,6 @@
-// src/components/FormRenderer.jsx
 import React, { useState, useEffect, forwardRef } from "react";
 import { conditionalLogic } from "../utils/conditionalLogic";
 
-/**
- * FormRenderer
- * - schema: { title, fields }
- * - errorsByName: { [fieldName]: [messageString, ...], _global?: [...] }
- *
- * Pure renderer:
- * - No schema validation
- * - No required-field validation
- * - Only renders form UI based on schema + user input
- */
 const FormRenderer = forwardRef(({ schema, errorsByName = {} }, ref) => {
   const [responses, setResponses] = useState({});
   const [fields, setFields] = useState(schema?.fields || []);
@@ -23,17 +12,14 @@ const FormRenderer = forwardRef(({ schema, errorsByName = {} }, ref) => {
     }
   }, [schema]);
 
-  // handleChange uses field.name as key
   const handleChange = (name, value) => {
     const newResponses = { ...responses, [name]: value };
     setResponses(newResponses);
 
-    // update visible fields using conditional logic
     const newFields = conditionalLogic(schema.fields, newResponses);
     setFields(newFields);
   };
 
-  // helper: check whether branch should be shown
   const branchMatchesResponse = (parentField, opt) => {
     const val = responses[parentField.name];
     if (val === undefined || val === null || val === "") return false;
@@ -49,7 +35,6 @@ const FormRenderer = forwardRef(({ schema, errorsByName = {} }, ref) => {
     return false;
   };
 
-  // render a single field (recursive)
   const renderField = (field) => {
     const value = responses[field.name];
     const inlineErrors = errorsByName[field.name] || [];
@@ -164,7 +149,6 @@ const FormRenderer = forwardRef(({ schema, errorsByName = {} }, ref) => {
           </select>
         )}
 
-        {/* inline schema errors (from jsonValidator / zod) */}
         {inlineErrors.length > 0 && (
           <div className="field-error">
             {inlineErrors.map((m, i) => (
@@ -173,7 +157,6 @@ const FormRenderer = forwardRef(({ schema, errorsByName = {} }, ref) => {
           </div>
         )}
 
-        {/* conditional branches */}
         {field.conditions &&
           Object.entries(field.conditions).map(([opt, branchFields]) => {
             if (!branchMatchesResponse(field, opt)) return null;
@@ -206,7 +189,6 @@ const FormRenderer = forwardRef(({ schema, errorsByName = {} }, ref) => {
           <div key={f.name || i}>{renderField(f)}</div>
         ))}
 
-        {/* global schema errors */}
         {Array.isArray(errorsByName._global) &&
           errorsByName._global.length > 0 && (
             <div

@@ -1,5 +1,3 @@
-// src/components/TemplateList.jsx
-import React from "react";
 import TemplateCard from "./TemplateCard.jsx";
 
 export default function TemplateList({ templates = [], onSelect = () => {} }) {

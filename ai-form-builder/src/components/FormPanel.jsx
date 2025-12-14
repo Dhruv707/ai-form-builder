@@ -1,4 +1,3 @@
-// src/components/FormPanel.jsx
 import React, { useState } from "react";
 import TemplateList from "./TemplateList.jsx";
 import DynamicForm from "./DynamicForm.jsx";
@@ -6,9 +5,8 @@ import DynamicForm from "./DynamicForm.jsx";
 export default function FormPanel({ onClose, submissions = [], onFormCreated }) {
   const [activeFormId, setActiveFormId] = useState(null);
   const activeForm = submissions.find((s) => s.id === activeFormId);
-  // Only reshape for TemplateList display
   const listItems = submissions.map((s) => ({
-    ...s, // keep everything
+    ...s,
     title: s.formName,
     description: `Submitted by ${s.userName}`,
   }));

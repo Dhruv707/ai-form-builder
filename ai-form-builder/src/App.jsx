@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useEffect, useState } from "react";
 import AdminPortal from "./components/AdminPortal.jsx";
 import { login, logout, subscribeToAuthChanges } from "./firebase/auth.js";
@@ -19,11 +18,7 @@ export default function App() {
   const [templates, setTemplates] = useState([]);
   const [forms, setForms] = useState([]);
   const [adminMessage, setAdminMessage] = useState("");
-
-  // message shown to public users when they attempt admin-only actions
   const [publicMessage, setPublicMessage] = useState("");
-
-  // controls whether the template panel (builtin templates) is visible
   const [showTemplatePanel, setShowTemplatePanel] = useState(false);
   const [showFormPanel, setShowFormPanel] = useState(false);
 
@@ -71,7 +66,6 @@ export default function App() {
 
   return (
     <div className="app-root">
-      {/* Top bar */}
       <header className="top-bar">
         <div className="top-bar-left">
           <span className="logo-dot" />
@@ -111,11 +105,9 @@ export default function App() {
                 <div
                   className="big-card clickable"
                   onClick={() => {
-                    // If admin logged in, allow blank form behavior (existing behaviour)
                     if (isAdmin) {
                       setPublicMessage("");
                     } else {
-                      // show helpful message to public users
                       setPublicMessage(
                         "To create a new form, please login as admin."
                       );

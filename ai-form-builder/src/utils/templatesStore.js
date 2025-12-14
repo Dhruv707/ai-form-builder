@@ -1,4 +1,3 @@
-// utils/templatesStore.js
 const STORAGE_KEY = "customTemplates";
 
 export function loadTemplates() {
